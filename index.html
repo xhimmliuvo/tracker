@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DROPEE Daily Order Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body class="bg-gray-100 p-4 flex flex-col min-h-screen">
+
+    <div class="max-w-md mx-auto bg-white p-4 shadow-md rounded flex-grow">
+        <h1 class="text-2xl font-bold text-center mb-4 text-blue-600">DROPEE Daily Order Tracker</h1>
+
+        <form id="entryForm" class="space-y-4">
+            <div>
+                <label class="block font-medium">Date:</label>
+                <input type="date" id="date" required class="w-full p-2 border rounded">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-medium">Time From:</label>
+                    <input type="time" id="timeFrom" required class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block font-medium">Time Till:</label>
+                    <input type="time" id="timeTill" required class="w-full p-2 border rounded">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-medium">Location From:</label>
+                    <input type="text" id="locationFrom" required class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block font-medium">Location Till:</label>
+                    <input type="text" id="locationTill" required class="w-full p-2 border rounded">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-medium">Name:</label>
+                <input type="text" id="name" required class="w-full p-2 border rounded">
+            </div>
+
+            <div>
+                <label class="block font-medium">Phone:</label>
+                <input type="tel" id="phone" required class="w-full p-2 border rounded">
+            </div>
+
+            <div>
+                <label class="block font-medium">Description:</label>
+                <input type="text" id="description" required class="w-full p-2 border rounded">
+            </div>
+            
+            <div>
+                <label class="block font-medium">Charges:</label>
+                <input type="number" id="charges" required class="w-full p-2 border rounded">
+            </div> 
+            <div>
+                <label class="block font-medium">Tips:</label>
+                <input type="number" id="tips" required class="w-full p-2 border rounded">
+            </div>
+
+            <div>
+                <label class="block font-medium">Amount:</label>
+                <input type="number" id="amount" required class="w-full p-2 border rounded">
+            </div>
+
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+                Save Entry
+            </button>
+        </form>
+    </div>
+
+    <div id="savedEntries" class="max-w-md mx-auto bg-white p-4 shadow-md rounded mt-6">
+        <h2 class="text-lg font-bold">Saved Entries</h2>
+        <p class="text-gray-500 text-sm">No entries saved yet.</p>
+    </div>
+
+    <<footer style="
+    background: #222; 
+    color: #fff; 
+    text-align: center; 
+    padding: 5px; 
+    font-size: 16px; 
+    position: fixed; 
+    bottom: 0; 
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    ">
+    <p>Developed by <strong style="color: #ffcc00;">Jihal Shimray</strong></p>
+</footer>
+
+    <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                loadEntries();
+            
+                document.getElementById("entryForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+            
+                    const entry = {
+                        id: Date.now(),
+                        date: document.getElementById("date").value,
+                        timeFrom: document.getElementById("timeFrom").value,
+                        timeTill: document.getElementById("timeTill").value,
+                        locationFrom: document.getElementById("locationFrom").value,
+                        locationTill: document.getElementById("locationTill").value,
+                        name: document.getElementById("name").value,
+                        phone: document.getElementById("phone").value,
+                        description: document.getElementById("description").value,
+                        amount: document.getElementById("amount").value,
+                        tips: document.getElementById("tips").value,
+                        charges: document.getElementById("charges").value
+                    };
+                    
+                    // Save to localStorage
+                    const entries = JSON.parse(localStorage.getItem("entries") || "[]");
+                    entries.push(entry);
+                    localStorage.setItem("entries", JSON.stringify(entries));
+            
+                    // Reset Form
+                    this.reset();
+            
+                    // Reload Entries
+                    loadEntries();
+            
+                    alert("Entry saved successfully!");
+                });
+            });
+            
+            function loadEntries() {
+                const savedEntriesDiv = document.getElementById("savedEntries");
+                const entries = JSON.parse(localStorage.getItem("entries") || "[]");
+            
+                savedEntriesDiv.innerHTML = `<h2 class="text-lg font-bold">Saved Entries</h2>`;
+            
+                if (entries.length === 0) {
+                    savedEntriesDiv.innerHTML += `<p class="text-gray-500 text-sm">No entries saved.</p>`;
+                    return;
+                }
+            
+                entries.forEach(entry => {
+                    savedEntriesDiv.innerHTML += `
+                    <div class="border p-3 rounded my-2 bg-gray-50" id="entry-${entry.id}">
+                        <p><strong>Date:</strong> ${entry.date}</p>
+                        <p><strong>Time:</strong> ${entry.timeFrom} - ${entry.timeTill}</p>
+                        <p><strong>Location:</strong> ${entry.locationFrom} → ${entry.locationTill}</p>
+                        <p><strong>Name:</strong> ${entry.name}</p>
+                        <p><strong>Phone:</strong> ${entry.phone}</p>
+                        <p><strong>Description:</strong> ${entry.description}</p>
+                        <p><strong>Amount:</strong> ${entry.amount}</p>
+                        <p><strong>Charges:</strong> ${entry.charges}</p>
+                         <p><strong>Tips:</strong> ${entry.tips}</p>
+                        <button onclick="editEntry(${entry.id})" class="bg-yellow-500 text-white px-2 py-1 text-xs rounded hover:bg-yellow-600">
+                            Edit
+                        </button>
+                        <button onclick="deleteEntry(${entry.id})" class="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600">
+                            Delete
+                        </button>
+                        <button onclick="shareEntryToWhatsApp(${entry.id})" class="bg-green-500 text-white px-2 py-1 text-xs rounded hover:bg-green-600">
+                            Share
+                        </button>
+                    </div>
+                `;
+                });
+            }
+            
+            function editEntry(entryId) {
+                const entries = JSON.parse(localStorage.getItem("entries") || "[]");
+                const entry = entries.find(e => e.id === entryId);
+            
+                if (!entry) return;
+            
+                document.getElementById("date").value = entry.date;
+                document.getElementById("timeFrom").value = entry.timeFrom;
+                document.getElementById("timeTill").value = entry.timeTill;
+                document.getElementById("locationFrom").value = entry.locationFrom;
+                document.getElementById("locationTill").value = entry.locationTill;
+                document.getElementById("name").value = entry.name;
+                document.getElementById("phone").value = entry.phone;
+                document.getElementById("description").value = entry.description;
+                document.getElementById("amount").value = entry.amount;
+                document.getElementById("charges").value = entry.amount;
+                document.getElementById("tips").value = entry.amount;
+            
+                // Remove the old entry from storage
+                const updatedEntries = entries.filter(e => e.id !== entryId);
+                localStorage.setItem("entries", JSON.stringify(updatedEntries));
+            
+                // Reload the entries after editing
+                loadEntries();
+            }
+            
+            function deleteEntry(id) {
+                let entries = JSON.parse(localStorage.getItem("entries") || "[]");
+                entries = entries.filter(entry => entry.id !== id);
+                localStorage.setItem("entries", JSON.stringify(entries));
+                loadEntries();
+            }
+            
+            function shareEntryToWhatsApp(entryId) {
+                const entries = JSON.parse(localStorage.getItem("entries") || "[]");
+                const entry = entries.find(e => e.id === entryId);
+            
+                if (!entry) {
+                    alert("Entry not found!");
+                    return;
+                }
+            
+                const message = `📌 *DROPEE Daily Order* 📌\n\n` +
+                    `📅 *Date:* ${entry.date}\n` +
+                    `⏰ *Time:* ${entry.timeFrom} - ${entry.timeTill}\n` +
+                    `📍 *From:* ${entry.locationFrom}\n` +
+                    `📍 *Till:* ${entry.locationTill}\n` +
+                    `👤 *Name:* ${entry.name}\n` +
+                    `📞 *Phone:* ${entry.phone}\n` +
+                    `📝 *Description:* ${entry.description}\n` +
+                    `💰 *Charges:* ${entry.charges}\n` +
+                    `💰 *Tips:* ${entry.tips}\n` +
+                    `💰 *Amount:* ${entry.amount}\n` +
+                    `----------------------`;
+            
+                const phone = "917005498122"; // WhatsApp number
+                const whatsappLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappLink, "_blank");
+            }
+            </script>
+            
+    </script>
+</body>
+</html>
